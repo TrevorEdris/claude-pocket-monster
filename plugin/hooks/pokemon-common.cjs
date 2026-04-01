@@ -26,8 +26,7 @@ function getUserId() {
  */
 function getPokemonInfo() {
   try {
-    const userId = getUserId();
-    const output = execSync(`npx tsx "${CLI_PATH}" "${userId}"`, {
+    const output = execSync(`npx tsx "${CLI_PATH}"`, {
       encoding: 'utf8', cwd: REPO_ROOT, timeout: 10000,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
@@ -213,9 +212,8 @@ function renderPokemon(mode, event, opts = {}) {
   if (Math.random() > chance) return null;
 
   try {
-    const userId = getUserId();
     const flag = mode === 'minimal' ? '--minimal' : '';
-    const output = execSync(`npx tsx "${CLI_PATH}" ${flag} "${userId}"`, {
+    const output = execSync(`npx tsx "${CLI_PATH}" ${flag}`, {
       encoding: 'utf8', cwd: REPO_ROOT, timeout: 10000,
       stdio: ['pipe', 'pipe', 'pipe'],
     });

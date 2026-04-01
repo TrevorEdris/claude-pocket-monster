@@ -1,15 +1,15 @@
 ---
 name: pokemon
-description: "Roll a deterministic Pokemon companion based on user identity. Displays braille sprite art with shiny rainbow rendering. Triggered by: pokemon, pocket monster, roll pokemon, my pokemon, what pokemon am I, reroll, new pokemon, swap pokemon."
+description: "Show your Pokemon companion or reroll for a new one. Displays braille sprite art with shiny rainbow rendering. Triggered by: pokemon, pocket monster, roll pokemon, my pokemon, what pokemon am I, reroll, new pokemon, swap pokemon."
 user-invocable: true
-argument-hint: "[reroll | reset | userId]"
+argument-hint: "[reroll]"
 allowed-tools: Bash
 tags: [fun, companion]
 ---
 
 # Pokemon
 
-Roll a deterministic Pokemon companion. Same user always gets the same Pokemon unless re-rolled.
+Show your Pokemon companion, or reroll for a new one.
 
 ---
 
@@ -17,32 +17,24 @@ Roll a deterministic Pokemon companion. Same user always gets the same Pokemon u
 
 ```
 /pokemon              # Show your current Pokemon
-/pokemon reroll       # Re-roll for a new random Pokemon
-/pokemon reset        # Reset back to your original userId-based Pokemon
-/pokemon my-username  # Roll for a specific user
+/pokemon reroll       # Swap to a new random Pokemon
 ```
 
 ---
 
 ## Process
 
-### Step 1: Determine the Action
+### Step 1: Run the CLI
 
 - If the argument is `reroll`: add `--reroll` flag
-- If the argument is `reset`: add `--reset` flag
-- If the argument is something else: use it as the userId
-- If no argument: use `whoami` to get the system username
-
-### Step 2: Run the CLI
+- Otherwise: no flags
 
 ```bash
-cd ~/src/github.com/TrevorEdris/claude-pocket-monster && npx tsx src/cli.ts [--reroll | --reset | <userId>]
+cd ~/src/github.com/TrevorEdris/claude-pocket-monster && npx tsx src/cli.ts [--reroll]
 ```
 
-### Step 3: Show the Output
+### Step 2: Show the Output
 
 **CRITICAL: Copy the ENTIRE Bash output into your response verbatim, preserving all braille characters and ANSI codes. Do NOT describe what the sprite looks like — just show it. The braille art IS the point.**
 
-After the verbatim output, you may add one short sentence about the Pokemon.
-
-If the user re-rolled, mention that their companion has changed.
+After the verbatim output, you may add one short sentence. If the user re-rolled, mention their companion changed.

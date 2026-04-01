@@ -77,12 +77,12 @@ function rollFromSeed(seedInput: string): PokemonRoll {
   return { pokemon, shiny, eye }
 }
 
-export function roll(userId: string): PokemonRoll {
+export function roll(): PokemonRoll {
   const config = loadConfig()
   if (config.seed) return rollFromSeed(config.seed)
 
-  // First time — generate a seed from userId + timestamp and persist it
-  const seed = `${userId}-${Date.now()}-${Math.random()}`
+  // First time — generate a random seed and persist it
+  const seed = `init-${Date.now()}-${Math.random()}`
   saveConfig({ seed })
   return rollFromSeed(seed)
 }
@@ -91,11 +91,6 @@ export function reroll(): PokemonRoll {
   const seed = `reroll-${Date.now()}-${Math.random()}`
   saveConfig({ seed })
   return rollFromSeed(seed)
-}
-
-export function resetRoll(): void {
-  // Clear persisted seed — next roll() will generate a fresh one
-  saveConfig({})
 }
 
 // Exported for testing
