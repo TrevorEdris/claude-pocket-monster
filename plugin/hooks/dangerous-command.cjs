@@ -17,7 +17,7 @@ async function main() {
 
   if (!DANGER_PATTERNS.test(cmd)) return console.log('{}');
 
-  const sprite = renderPokemon('minimal');
+  const sprite = renderPokemon('minimal', event);
   respond('PreToolUse', sprite);
 }
 

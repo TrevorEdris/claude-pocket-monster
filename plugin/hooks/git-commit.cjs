@@ -20,7 +20,7 @@ async function main() {
 
   if (!success) return console.log('{}');
 
-  const sprite = renderPokemon('minimal', { chance: 0.6 });
+  const sprite = renderPokemon('minimal', event, { chance: 0.6 });
   respond('PostToolUse', sprite);
 }
 

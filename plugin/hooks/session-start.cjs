@@ -47,10 +47,9 @@ try {
     log(`Event: ${hookEvent} — ${JSON.stringify(event).slice(0, 200)}`);
 
     if (hookEvent === 'SessionStart') {
-      // Always show on session start — no rate limiting
       log('SessionStart event — always rendering');
       markShown();
-      const sprite = renderPokemon('minimal');
+      const sprite = renderPokemon('minimal', event);
       log(`Sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
       respond('SessionStart', sprite);
       return log('Done');
@@ -61,16 +60,18 @@ try {
     log(`New session: ${newSession}`);
 
     if (!newSession) {
-      log('Not new session, rolling idle (8% chance)');
-      const sprite = renderPokemon('minimal', { chance: 0.40 });
+      log('Not new session, rolling idle (40% chance)');
+      const userPrompt = event?.user_prompt || '';
+      const ctx = userPrompt ? `the user just said: "${userPrompt.slice(0, 80)}"` : 'idle moment between prompts';
+      const sprite = renderPokemon('minimal', event, { chance: 0.40 });
       log(`Idle sprite: ${sprite ? 'yes' : 'null'}`);
       return respond('UserPromptSubmit', sprite);
     }
 
     markShown();
-    log('First prompt — rendering happy sprite...');
-    const sprite = renderPokemon('minimal');
-    log(`Happy sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
+    log('First prompt — rendering');
+    const sprite = renderPokemon('minimal', event);
+    log(`Sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
     respond('UserPromptSubmit', sprite);
     log('Done');
   }
