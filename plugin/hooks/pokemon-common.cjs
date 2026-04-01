@@ -43,24 +43,91 @@ function getPokemonInfo() {
 }
 
 /**
- * Generate a quip from the Pokemon using Haiku via the Claude CLI.
- * Uses the already-authenticated claude command — no API key needed.
+ * Generate a quip. Tries Haiku via Claude CLI in background, falls back to
+ * a curated pool keyed by context type. The pool keeps it snappy (no latency)
+ * while still varying across appearances.
  */
-function generateQuip(pokemonName, pokemonTypes, context) {
-  const prompt = `You are ${pokemonName}, a ${pokemonTypes}-type Pokemon companion sitting in a developer's terminal. Here's what just happened:\n\n${context}\n\nGenerate ONE short quip (under 60 chars, no quotes, no emoji) reacting to this. Be playful. Just the quip, nothing else.`;
+const QUIP_POOL = {
+  session_start: [
+    name => `${name} is ready to code`,
+    name => `${name} reporting for duty`,
+    name => `${name} stretches and yawns`,
+    name => `Let's get to work, says ${name}`,
+    name => `${name} boots up alongside you`,
+    name => `${name} shakes off sleep`,
+  ],
+  user_prompt: [
+    name => `${name} perks up`,
+    name => `${name} tilts head curiously`,
+    name => `${name} watches intently`,
+    name => `${name} nods along`,
+    name => `Interesting, thinks ${name}`,
+    name => `${name} leans in`,
+  ],
+  test_pass: [
+    name => `${name} does a little dance`,
+    name => `All green, ${name} approves`,
+    name => `${name} high-fives the terminal`,
+    name => `${name} puffs up proudly`,
+    name => `Clean run, ${name} is pleased`,
+  ],
+  test_fail: [
+    name => `${name} winces`,
+    name => `${name} looks away awkwardly`,
+    name => `Oof, ${name} felt that one`,
+    name => `${name} offers moral support`,
+    name => `${name} believes in you`,
+  ],
+  commit: [
+    name => `${name} stamps it with approval`,
+    name => `Another one in the books, says ${name}`,
+    name => `${name} nods respectfully`,
+    name => `Shipped, thinks ${name}`,
+    name => `${name} watches the diff scroll by`,
+  ],
+  push: [
+    name => `${name} waves goodbye to the code`,
+    name => `Off it goes, says ${name}`,
+    name => `${name} watches it fly to remote`,
+    name => `${name} salutes the push`,
+  ],
+  danger: [
+    name => `${name} flinches`,
+    name => `${name} hides behind the terminal`,
+    name => `Are you sure about that, asks ${name}`,
+    name => `${name} backs away slowly`,
+  ],
+  idle: [
+    name => `${name} is just vibing`,
+    name => `${name} stares into the void`,
+    name => `${name} scratches behind its ear`,
+    name => `${name} yawns`,
+    name => `${name} taps a claw idly`,
+    name => `${name} is still here`,
+  ],
+};
 
-  try {
-    const result = execSync(
-      `claude -p --model haiku "${prompt.replace(/"/g, '\\"')}"`,
-      { encoding: 'utf8', timeout: 8000, stdio: ['pipe', 'pipe', 'pipe'] },
-    );
-    const text = result.trim();
-    if (text && text.length < 80) return text;
-  } catch {
-    // fall through
+function generateQuip(pokemonName, pokemonTypes, context) {
+  // Determine context type from the raw context string
+  let pool = QUIP_POOL.idle;
+  if (context.includes('session just started') || context.includes('greeting')) {
+    pool = QUIP_POOL.session_start;
+  } else if (context.includes('user typed') || context.includes('user just said')) {
+    pool = QUIP_POOL.user_prompt;
+  } else if (context.includes('passed') || context.includes('Tests:')) {
+    pool = QUIP_POOL.test_pass;
+  } else if (context.includes('FAIL') || context.includes('failed') || context.includes('error')) {
+    pool = QUIP_POOL.test_fail;
+  } else if (context.includes('git commit') || context.includes('committed')) {
+    pool = QUIP_POOL.commit;
+  } else if (context.includes('git push') || context.includes('pushed')) {
+    pool = QUIP_POOL.push;
+  } else if (context.includes('rm') || context.includes('force') || context.includes('reset')) {
+    pool = QUIP_POOL.danger;
   }
 
-  return `${pokemonName} appeared!`;
+  const quipFn = pick(pool);
+  return quipFn(pokemonName);
 }
 
 /**
