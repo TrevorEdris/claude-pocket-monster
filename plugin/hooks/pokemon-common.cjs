@@ -81,17 +81,13 @@ async function readEvent() {
 }
 
 /**
- * Emit hook response using the JSON additionalContext format
- * (same as Skilmarillion hooks). This gets shown as
- * "HookEvent says: [message]" in the Claude Code transcript.
+ * Emit hook response using systemMessage (same as Skilmarillion).
+ * Shows as "HookEvent says: [message]" in the Claude Code transcript.
  */
 function respond(hookEventName, message) {
   if (!message) return console.log('{}');
   console.log(JSON.stringify({
-    hookSpecificOutput: {
-      hookEventName,
-      additionalContext: `[pokemon] Your companion appeared!\n${message}`,
-    },
+    systemMessage: `[pokemon]\n${message}`,
   }));
 }
 
