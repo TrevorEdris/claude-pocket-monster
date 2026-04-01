@@ -49,7 +49,7 @@ function getPokemonPool(): PokemonEntry[] {
   return pokemonData as PokemonEntry[]
 }
 
-function loadConfig(): { seedOverride?: string } {
+function loadConfig(): { seed?: string } {
   try {
     return JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
   } catch {
@@ -57,20 +57,17 @@ function loadConfig(): { seedOverride?: string } {
   }
 }
 
-function saveConfig(config: { seedOverride?: string }): void {
+function saveConfig(config: { seed?: string }): void {
   mkdirSync(CONFIG_DIR, { recursive: true })
   writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2) + '\n')
 }
 
-export function roll(userId: string): PokemonRoll {
-  const config = loadConfig()
-  const seedInput = config.seedOverride || (userId + SALT)
+function rollFromSeed(seedInput: string): PokemonRoll {
   const seed = hashString(seedInput)
   const rng = mulberry32(seed)
 
   const rarity = rollRarity(rng)
   const pool = getPokemonPool().filter((p) => p.rarity === rarity)
-
   const finalPool = pool.length > 0 ? pool : getPokemonPool().filter((p) => p.rarity === 'common')
   const pokemon = pick(finalPool, rng)
 
@@ -78,28 +75,28 @@ export function roll(userId: string): PokemonRoll {
   const eye = pick(EYES, rng)
 
   return { pokemon, shiny, eye }
+}
+
+export function roll(userId: string): PokemonRoll {
+  const config = loadConfig()
+  if (config.seed) return rollFromSeed(config.seed)
+
+  // First time — generate a seed from userId + timestamp and persist it
+  const seed = `${userId}-${Date.now()}-${Math.random()}`
+  saveConfig({ seed })
+  return rollFromSeed(seed)
 }
 
 export function reroll(): PokemonRoll {
-  const newSeed = `reroll-${Date.now()}-${Math.random()}`
-  saveConfig({ seedOverride: newSeed })
-  const seed = hashString(newSeed)
-  const rng = mulberry32(seed)
-
-  const rarity = rollRarity(rng)
-  const pool = getPokemonPool().filter((p) => p.rarity === rarity)
-  const finalPool = pool.length > 0 ? pool : getPokemonPool().filter((p) => p.rarity === 'common')
-  const pokemon = pick(finalPool, rng)
-
-  const shiny = rng() < SHINY_THRESHOLD
-  const eye = pick(EYES, rng)
-
-  return { pokemon, shiny, eye }
+  const seed = `reroll-${Date.now()}-${Math.random()}`
+  saveConfig({ seed })
+  return rollFromSeed(seed)
 }
 
 export function resetRoll(): void {
+  // Clear persisted seed — next roll() will generate a fresh one
   saveConfig({})
 }
 
 // Exported for testing
-export { mulberry32, hashString, rollRarity, pick }
+export { mulberry32, hashString, rollRarity, rollFromSeed, pick }
