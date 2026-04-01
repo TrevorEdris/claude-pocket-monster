@@ -1,6 +1,6 @@
 ---
 name: pokemon
-description: "Roll a deterministic Pokemon companion based on user identity. Displays ASCII sprite art with shiny rainbow rendering. Triggered by: pokemon, pocket monster, roll pokemon, my pokemon, what pokemon am I."
+description: "Roll a deterministic Pokemon companion based on user identity. Displays braille sprite art with shiny rainbow rendering. Triggered by: pokemon, pocket monster, roll pokemon, my pokemon, what pokemon am I."
 user-invocable: true
 argument-hint: "[userId or empty for default]"
 allowed-tools: Bash
@@ -29,31 +29,18 @@ Roll a deterministic Pokemon companion. Same user always gets the same Pokemon.
 - If the user provided an argument, use it as the userId
 - If no argument, use `whoami` to get the system username
 
-### Step 2: Roll the Pokemon
+### Step 2: Roll and Display the Pokemon
 
-Run the CLI from the plugin's package directory:
-
-```bash
-cd PLUGIN_BASE_DIR/../ && npx tsx src/cli.ts <userId>
-```
-
-Where `PLUGIN_BASE_DIR` is the directory containing this SKILL.md file. The actual repo root is three levels up from this skill file:
-
-```bash
-REPO_ROOT="$(cd "$(dirname "SKILL_PATH")/../../../" && pwd)"
-```
-
-Use the Bash tool to run:
+Run the CLI and **output its result verbatim** — do NOT summarize, interpret, or redescribe the output. The CLI produces formatted braille art that must be shown exactly as printed.
 
 ```bash
 cd ~/src/github.com/TrevorEdris/claude-pocket-monster && npx tsx src/cli.ts <userId>
 ```
 
-### Step 3: Display the Result
+### Step 3: Show the Output
 
-Show the full CLI output to the user as-is. The output includes:
-- Pokemon name, ID, types, rarity
-- Shiny status
-- ASCII sprite art (with shiny sparkle rendering if applicable)
+**CRITICAL: Copy the ENTIRE Bash output into your response verbatim, preserving all braille characters (⠀⣿⠀ etc), ANSI codes, and formatting. Do NOT describe what the sprite looks like — just show it. Do NOT say "here is your Pokemon" and then omit the sprite art. The braille art IS the point.**
 
-If the Pokemon is shiny, add excitement — it's a 1/512 chance!
+If the output contains ANSI color codes (shiny Pokemon), reproduce them exactly — they render as rainbow colors in the terminal.
+
+After the verbatim output, you may add one short sentence about the Pokemon (type, rarity, whether it's shiny).
