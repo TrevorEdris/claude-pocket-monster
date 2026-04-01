@@ -3,42 +3,77 @@
  * Pokemon Session Start Hook
  * Shows the user's Pokemon companion when a session begins.
  *
- * @hook {"event":"UserPromptSubmit","matcher":"","description":"Shows Pokemon on first prompt of session"}
+ * @hook {"event":"SessionStart","matcher":"","description":"Shows Pokemon on session start"}
  */
 
 const fs = require('fs');
 const path = require('path');
-const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
+const os = require('os');
 
-const STATE_FILE = path.join(require('os').tmpdir(), 'pokemon-session-shown.json');
-const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes — treat as new session after this
+const LOG_FILE = path.join(os.tmpdir(), 'pokemon-hook-debug.log');
 
-function isNewSession() {
-  try {
-    const data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
-    const elapsed = Date.now() - data.lastShown;
-    return elapsed > SESSION_TTL_MS;
-  } catch {
-    return true;
+function log(msg) {
+  const ts = new Date().toISOString();
+  fs.appendFileSync(LOG_FILE, `[${ts}] session-start: ${msg}\n`);
+}
+
+try {
+  log('Hook started');
+  const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
+
+  const STATE_FILE = path.join(os.tmpdir(), 'pokemon-session-shown.json');
+  const SESSION_TTL_MS = 30 * 60 * 1000;
+
+  function isNewSession() {
+    try {
+      const data = JSON.parse(fs.readFileSync(STATE_FILE, 'utf8'));
+      const elapsed = Date.now() - data.lastShown;
+      log(`Last shown ${elapsed}ms ago, TTL=${SESSION_TTL_MS}`);
+      return elapsed > SESSION_TTL_MS;
+    } catch (e) {
+      log(`No state file or parse error: ${e.message}`);
+      return true;
+    }
   }
-}
 
-function markShown() {
-  fs.writeFileSync(STATE_FILE, JSON.stringify({ lastShown: Date.now() }));
-}
-
-async function main() {
-  await readEvent();
-
-  if (!isNewSession()) {
-    // Not first prompt — use idle hook instead (low chance)
-    const sprite = renderPokemon('idle', { chance: 0.08 });
-    return respond('UserPromptSubmit', sprite);
+  function markShown() {
+    fs.writeFileSync(STATE_FILE, JSON.stringify({ lastShown: Date.now() }));
   }
 
-  markShown();
-  const sprite = renderPokemon('happy');
-  respond('UserPromptSubmit', sprite);
-}
+  async function main() {
+    log('Reading event from stdin...');
+    const event = await readEvent();
+    log(`Event: ${JSON.stringify(event).slice(0, 200)}`);
 
-main();
+    const newSession = isNewSession();
+    log(`New session: ${newSession}`);
+
+    if (!newSession) {
+      log('Not new session, rolling idle (8% chance)');
+      const sprite = renderPokemon('idle', { chance: 0.08 });
+      log(`Idle sprite: ${sprite ? 'yes' : 'null'}`);
+      return respond('SessionStart', sprite);
+    }
+
+    markShown();
+    log('Rendering happy sprite...');
+    const sprite = renderPokemon('happy');
+    log(`Happy sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
+    respond('SessionStart', sprite);
+    log('Done');
+  }
+
+  main().catch(e => {
+    log(`Error in main: ${e.message}\n${e.stack}`);
+    console.log('{}');
+  });
+} catch (e) {
+  const fs2 = require('fs');
+  const os2 = require('os');
+  const path2 = require('path');
+  fs2.appendFileSync(
+    path2.join(os2.tmpdir(), 'pokemon-hook-debug.log'),
+    `[${new Date().toISOString()}] FATAL: ${e.message}\n${e.stack}\n`
+  );
+  console.log('{}');
+}

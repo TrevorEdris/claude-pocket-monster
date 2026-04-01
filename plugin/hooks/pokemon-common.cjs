@@ -81,15 +81,18 @@ async function readEvent() {
 }
 
 /**
- * Emit hook response. Outputs the sprite as plain stdout so it appears
- * directly in the transcript (exit 0 = stdout shown to user).
- * Falls back to empty JSON if nothing to show.
+ * Emit hook response using the JSON additionalContext format
+ * (same as Skilmarillion hooks). This gets shown as
+ * "HookEvent says: [message]" in the Claude Code transcript.
  */
 function respond(hookEventName, message) {
   if (!message) return console.log('{}');
-  // Plain text to stdout — appears directly in the transcript
-  // without Claude summarizing/interpreting it
-  process.stdout.write(message + '\n');
+  console.log(JSON.stringify({
+    hookSpecificOutput: {
+      hookEventName,
+      additionalContext: `[pokemon] Your companion appeared!\n${message}`,
+    },
+  }));
 }
 
 module.exports = { renderPokemon, readEvent, respond, pick, REACTIONS };
