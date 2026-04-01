@@ -43,33 +43,18 @@ function getPokemonInfo() {
 }
 
 /**
- * Generate a quip from the Pokemon using Haiku, given raw session context.
+ * Generate a quip from the Pokemon using Haiku via the Claude CLI.
+ * Uses the already-authenticated claude command — no API key needed.
  */
 function generateQuip(pokemonName, pokemonTypes, context) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return `${pokemonName} appeared!`;
-
   const prompt = `You are ${pokemonName}, a ${pokemonTypes}-type Pokemon companion sitting in a developer's terminal. Here's what just happened:\n\n${context}\n\nGenerate ONE short quip (under 60 chars, no quotes, no emoji) reacting to this. Be playful. Just the quip, nothing else.`;
 
   try {
-    const body = JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 60,
-      messages: [{ role: 'user', content: prompt }],
-    });
-
-    const result = execSync(`curl -s -X POST https://api.anthropic.com/v1/messages \
-      -H "content-type: application/json" \
-      -H "x-api-key: ${apiKey}" \
-      -H "anthropic-version: 2023-06-01" \
-      -d '${body.replace(/'/g, "'\\''")}'`, {
-      encoding: 'utf8',
-      timeout: 5000,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-
-    const parsed = JSON.parse(result);
-    const text = parsed?.content?.[0]?.text?.trim();
+    const result = execSync(
+      `claude -p --model haiku "${prompt.replace(/"/g, '\\"')}"`,
+      { encoding: 'utf8', timeout: 8000, stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+    const text = result.trim();
     if (text && text.length < 80) return text;
   } catch {
     // fall through
