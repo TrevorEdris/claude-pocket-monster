@@ -107,8 +107,7 @@ const QUIP_POOL = {
   ],
 };
 
-function generateQuip(pokemonName, pokemonTypes, context) {
-  // Determine context type from the raw context string
+function poolQuip(pokemonName, context) {
   let pool = QUIP_POOL.idle;
   if (context.includes('session just started') || context.includes('greeting')) {
     pool = QUIP_POOL.session_start;
@@ -125,9 +124,48 @@ function generateQuip(pokemonName, pokemonTypes, context) {
   } else if (context.includes('rm') || context.includes('force') || context.includes('reset')) {
     pool = QUIP_POOL.danger;
   }
+  return pick(pool)(pokemonName);
+}
 
-  const quipFn = pick(pool);
-  return quipFn(pokemonName);
+function generateQuip(pokemonName, pokemonTypes, context) {
+  // Try Haiku via direct API using the Claude Code OAuth token
+  const token = process.env.CLAUDE_CODE_OAUTH_TOKEN || process.env.ANTHROPIC_API_KEY;
+  if (!token) return poolQuip(pokemonName, context);
+
+  const prompt = `You are ${pokemonName}, a ${pokemonTypes}-type Pokemon companion in a coding terminal. React to this:\n\n${context}\n\nONE quip, under 60 chars, no quotes, no emoji. Just the quip.`;
+
+  try {
+    const body = JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 60,
+      messages: [{ role: 'user', content: prompt }],
+    });
+
+    // Write body to a temp file to avoid shell escaping issues
+    const fs = require('fs');
+    const os = require('os');
+    const tmpFile = path.join(os.tmpdir(), 'pokemon-quip-body.json');
+    fs.writeFileSync(tmpFile, body);
+
+    const isOAuth = token.startsWith('sk-ant-oat');
+    const authHeader = isOAuth
+      ? `-H "Authorization: Bearer ${token}"`
+      : `-H "x-api-key: ${token}"`;
+    const betaHeader = isOAuth ? '-H "anthropic-beta: oauth-2025-04-20"' : '';
+
+    const result = execSync(
+      `curl -s -X POST https://api.anthropic.com/v1/messages ${authHeader} ${betaHeader} -H "content-type: application/json" -H "anthropic-version: 2023-06-01" -d @${tmpFile}`,
+      { encoding: 'utf8', timeout: 4000, stdio: ['pipe', 'pipe', 'pipe'] },
+    );
+
+    const parsed = JSON.parse(result);
+    const text = parsed?.content?.[0]?.text?.trim();
+    if (text && text.length < 80) return text;
+  } catch {
+    // fall through to pool
+  }
+
+  return poolQuip(pokemonName, context);
 }
 
 /**
