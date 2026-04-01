@@ -1,0 +1,10 @@
+{
+  "name": "claude-pocket-monster",
+  "description": "Deterministic Pokemon companion — roll a Pokemon from your user ID with ASCII sprites and shiny rendering",
+  "version": "0.1.0",
+  "author": {
+    "name": "TrevorEdris",
+    "url": "https://github.com/TrevorEdris/claude-pocket-monster"
+  },
+  "repository": "https://github.com/TrevorEdris/claude-pocket-monster"
+}
