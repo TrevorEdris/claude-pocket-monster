@@ -1,13 +1,20 @@
-import { roll } from './roll.js'
+import { roll, reroll, resetRoll } from './roll.js'
 import { loadSprite, renderSprite } from './sprites.js'
 import { wrapShiny } from './rainbow.js'
 import type { Rarity } from './types.js'
 
 const args = process.argv.slice(2)
 const minimal = args.includes('--minimal')
+const doReroll = args.includes('--reroll')
+const doReset = args.includes('--reset')
 const userId = args.find((a) => !a.startsWith('--')) || 'default-user'
 
-const result = roll(userId)
+if (doReset) {
+  resetRoll()
+  console.log('Reset to default roll.')
+}
+
+const result = doReroll ? reroll() : roll(userId)
 const sprite = loadSprite(result.pokemon.id, result.pokemon.name)
 
 const spriteLines = result.shiny

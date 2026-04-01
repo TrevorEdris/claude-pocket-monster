@@ -1,4 +1,4 @@
-export { roll } from './roll.js'
+export { roll, reroll, resetRoll } from './roll.js'
 export { loadSprite, loadAllSprites, validateSprite, renderSprite } from './sprites.js'
 export { wrapShiny, renderShiny } from './rainbow.js'
 export type { PokemonEntry, PokemonRoll, SpriteData, Eye, Rarity, PokemonType } from './types.js'

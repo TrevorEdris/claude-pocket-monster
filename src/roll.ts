@@ -1,9 +1,14 @@
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { join } from 'node:path'
+import { homedir } from 'node:os'
 import type { Eye, PokemonEntry, PokemonRoll, Rarity } from './types.js'
 import { EYES, RARITY_WEIGHTS } from './types.js'
 import pokemonData from '../data/pokemon.json' with { type: 'json' }
 
 const SALT = 'pocket-monster-2026'
 const SHINY_THRESHOLD = 1 / 512
+const CONFIG_DIR = join(homedir(), '.config', 'claude-pocket-monster')
+const CONFIG_FILE = join(CONFIG_DIR, 'config.json')
 
 function mulberry32(seed: number): () => number {
   let a = seed >>> 0
@@ -44,14 +49,28 @@ function getPokemonPool(): PokemonEntry[] {
   return pokemonData as PokemonEntry[]
 }
 
+function loadConfig(): { seedOverride?: string } {
+  try {
+    return JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
+  } catch {
+    return {}
+  }
+}
+
+function saveConfig(config: { seedOverride?: string }): void {
+  mkdirSync(CONFIG_DIR, { recursive: true })
+  writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2) + '\n')
+}
+
 export function roll(userId: string): PokemonRoll {
-  const seed = hashString(userId + SALT)
+  const config = loadConfig()
+  const seedInput = config.seedOverride || (userId + SALT)
+  const seed = hashString(seedInput)
   const rng = mulberry32(seed)
 
   const rarity = rollRarity(rng)
   const pool = getPokemonPool().filter((p) => p.rarity === rarity)
 
-  // If no Pokemon match the rolled rarity (e.g., legendary/mythical in PoC), fall back to common
   const finalPool = pool.length > 0 ? pool : getPokemonPool().filter((p) => p.rarity === 'common')
   const pokemon = pick(finalPool, rng)
 
@@ -59,6 +78,27 @@ export function roll(userId: string): PokemonRoll {
   const eye = pick(EYES, rng)
 
   return { pokemon, shiny, eye }
+}
+
+export function reroll(): PokemonRoll {
+  const newSeed = `reroll-${Date.now()}-${Math.random()}`
+  saveConfig({ seedOverride: newSeed })
+  const seed = hashString(newSeed)
+  const rng = mulberry32(seed)
+
+  const rarity = rollRarity(rng)
+  const pool = getPokemonPool().filter((p) => p.rarity === rarity)
+  const finalPool = pool.length > 0 ? pool : getPokemonPool().filter((p) => p.rarity === 'common')
+  const pokemon = pick(finalPool, rng)
+
+  const shiny = rng() < SHINY_THRESHOLD
+  const eye = pick(EYES, rng)
+
+  return { pokemon, shiny, eye }
+}
+
+export function resetRoll(): void {
+  saveConfig({})
 }
 
 // Exported for testing
