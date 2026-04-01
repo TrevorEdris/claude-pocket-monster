@@ -62,7 +62,7 @@ try {
 
     if (!newSession) {
       log('Not new session, rolling idle (8% chance)');
-      const sprite = renderPokemon('minimal', { chance: 0.08 });
+      const sprite = renderPokemon('minimal', { chance: 0.40 });
       log(`Idle sprite: ${sprite ? 'yes' : 'null'}`);
       return respond('UserPromptSubmit', sprite);
     }
