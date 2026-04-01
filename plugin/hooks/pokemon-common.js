@@ -81,16 +81,15 @@ async function readEvent() {
 }
 
 /**
- * Emit a hook response with additionalContext.
+ * Emit hook response. Outputs the sprite as plain stdout so it appears
+ * directly in the transcript (exit 0 = stdout shown to user).
+ * Falls back to empty JSON if nothing to show.
  */
 function respond(hookEventName, message) {
   if (!message) return console.log('{}');
-  console.log(JSON.stringify({
-    hookSpecificOutput: {
-      hookEventName,
-      additionalContext: message,
-    },
-  }));
+  // Plain text to stdout — appears directly in the transcript
+  // without Claude summarizing/interpreting it
+  process.stdout.write(message + '\n');
 }
 
 module.exports = { renderPokemon, readEvent, respond, pick, REACTIONS };
