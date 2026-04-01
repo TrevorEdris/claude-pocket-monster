@@ -43,8 +43,20 @@ try {
   async function main() {
     log('Reading event from stdin...');
     const event = await readEvent();
-    log(`Event: ${JSON.stringify(event).slice(0, 200)}`);
+    const hookEvent = event?.hook_event_name || 'unknown';
+    log(`Event: ${hookEvent} — ${JSON.stringify(event).slice(0, 200)}`);
 
+    if (hookEvent === 'SessionStart') {
+      // Always show on session start — no rate limiting
+      log('SessionStart event — always rendering');
+      markShown();
+      const sprite = renderPokemon('happy');
+      log(`Sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
+      respond('SessionStart', sprite);
+      return log('Done');
+    }
+
+    // UserPromptSubmit — rate limited idle appearance
     const newSession = isNewSession();
     log(`New session: ${newSession}`);
 
@@ -52,14 +64,14 @@ try {
       log('Not new session, rolling idle (8% chance)');
       const sprite = renderPokemon('idle', { chance: 0.08 });
       log(`Idle sprite: ${sprite ? 'yes' : 'null'}`);
-      return respond('SessionStart', sprite);
+      return respond('UserPromptSubmit', sprite);
     }
 
     markShown();
-    log('Rendering happy sprite...');
+    log('First prompt — rendering happy sprite...');
     const sprite = renderPokemon('happy');
     log(`Happy sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
-    respond('SessionStart', sprite);
+    respond('UserPromptSubmit', sprite);
     log('Done');
   }
 
