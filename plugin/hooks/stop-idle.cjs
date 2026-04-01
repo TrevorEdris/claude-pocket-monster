@@ -11,7 +11,7 @@ const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
 
 async function main() {
   await readEvent();
-  const sprite = renderPokemon('idle', { chance: 0.05 });
+  const sprite = renderPokemon('minimal', { chance: 0.05 });
   respond('Stop', sprite);
 }
 

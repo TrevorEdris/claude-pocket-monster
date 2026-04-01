@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
  * Shared utilities for Pokemon hooks.
- * Renders the user's Pokemon sprite with optional reaction context.
  */
 
 const { execSync } = require('child_process');
@@ -9,25 +8,6 @@ const path = require('path');
 
 const REPO_ROOT = path.resolve(__dirname, '..', '..');
 const CLI_PATH = path.join(REPO_ROOT, 'src', 'cli.ts');
-
-// Reactions: mood + message pairs
-const REACTIONS = {
-  idle: [
-    '...', '*yawn*', '♪', 'zzz', '~', '!',
-  ],
-  happy: [
-    '!!', '♪♪♪', ':D', '!!!', '*dance*', 'woo!',
-  ],
-  sad: [
-    '...', ':(', '*sigh*', 'oh no', '...',
-  ],
-  alarmed: [
-    '?!', 'WAIT', '!!!', '*panic*', 'O_O',
-  ],
-  proud: [
-    '*flex*', 'nice!', ':)', 'heh', '*nod*',
-  ],
-};
 
 function pick(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -42,26 +22,24 @@ function getUserId() {
 }
 
 /**
- * Render the Pokemon sprite with a reaction bubble.
- * Returns the string to output, or null if nothing to show.
+ * Render the Pokemon sprite.
+ * mode: 'minimal' (hook greeting) or 'full' (slash command card)
+ * Returns string or null if chance gate fails.
  */
-function renderPokemon(mood, opts = {}) {
+function renderPokemon(mode, opts = {}) {
   const { chance = 1.0 } = opts;
-
-  // Random chance gate
   if (Math.random() > chance) return null;
 
   try {
     const userId = getUserId();
-    const output = execSync(`npx tsx "${CLI_PATH}" "${userId}"`, {
+    const flag = mode === 'minimal' ? '--minimal' : '';
+    const output = execSync(`npx tsx "${CLI_PATH}" ${flag} "${userId}"`, {
       encoding: 'utf8',
       cwd: REPO_ROOT,
       timeout: 10000,
       stdio: ['pipe', 'pipe', 'pipe'],
     });
-
-    const reaction = pick(REACTIONS[mood] || REACTIONS.idle);
-    return `${output.trim()}\n\n  "${reaction}"`;
+    return output.trim();
   } catch {
     return null;
   }
@@ -81,14 +59,11 @@ async function readEvent() {
 }
 
 /**
- * Emit hook response using systemMessage (same as Skilmarillion).
- * Shows as "HookEvent says: [message]" in the Claude Code transcript.
+ * Emit hook response via systemMessage.
  */
 function respond(hookEventName, message) {
   if (!message) return console.log('{}');
-  console.log(JSON.stringify({
-    systemMessage: `[pokemon]\n${message}`,
-  }));
+  console.log(JSON.stringify({ systemMessage: message }));
 }
 
-module.exports = { renderPokemon, readEvent, respond, pick, REACTIONS };
+module.exports = { renderPokemon, readEvent, respond, pick };

@@ -50,7 +50,7 @@ try {
       // Always show on session start — no rate limiting
       log('SessionStart event — always rendering');
       markShown();
-      const sprite = renderPokemon('happy');
+      const sprite = renderPokemon('minimal');
       log(`Sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
       respond('SessionStart', sprite);
       return log('Done');
@@ -62,14 +62,14 @@ try {
 
     if (!newSession) {
       log('Not new session, rolling idle (8% chance)');
-      const sprite = renderPokemon('idle', { chance: 0.08 });
+      const sprite = renderPokemon('minimal', { chance: 0.08 });
       log(`Idle sprite: ${sprite ? 'yes' : 'null'}`);
       return respond('UserPromptSubmit', sprite);
     }
 
     markShown();
     log('First prompt — rendering happy sprite...');
-    const sprite = renderPokemon('happy');
+    const sprite = renderPokemon('minimal');
     log(`Happy sprite: ${sprite ? `${sprite.length} chars` : 'null'}`);
     respond('UserPromptSubmit', sprite);
     log('Done');

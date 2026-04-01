@@ -15,7 +15,7 @@ async function main() {
   if (!cmd.includes('git push')) return console.log('{}');
 
   // Always show for pushes — it's a big moment
-  const sprite = renderPokemon('happy');
+  const sprite = renderPokemon('minimal');
   respond('PostToolUse', sprite);
 }
 
