@@ -8,7 +8,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { renderPokemon, readEvent, respond } = require('./pokemon-common.js');
+const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
 
 const STATE_FILE = path.join(require('os').tmpdir(), 'pokemon-session-shown.json');
 const SESSION_TTL_MS = 30 * 60 * 1000; // 30 minutes — treat as new session after this

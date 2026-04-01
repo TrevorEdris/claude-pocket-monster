@@ -6,7 +6,7 @@
  * @hook {"event":"PostToolUse","matcher":"Bash","description":"Pokemon reacts to test results"}
  */
 
-const { renderPokemon, readEvent, respond } = require('./pokemon-common.js');
+const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
 
 const TEST_PATTERNS = /\b(vitest|jest|pytest|npm\s+test|npx\s+vitest|npx\s+jest|cargo\s+test|go\s+test|make\s+test)\b/i;
 

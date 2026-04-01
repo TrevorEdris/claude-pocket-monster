@@ -6,7 +6,7 @@
  * @hook {"event":"PostToolUse","matcher":"Bash","description":"Pokemon celebrates git push"}
  */
 
-const { renderPokemon, readEvent, respond } = require('./pokemon-common.js');
+const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
 
 async function main() {
   const event = await readEvent();

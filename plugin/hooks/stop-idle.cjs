@@ -7,7 +7,7 @@
  * @hook {"event":"Stop","matcher":"","description":"Pokemon occasionally appears when assistant stops"}
  */
 
-const { renderPokemon, readEvent, respond } = require('./pokemon-common.js');
+const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
 
 async function main() {
   await readEvent();

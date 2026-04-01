@@ -5,7 +5,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.cjs",
           "timeout": 15
         }
       ]
@@ -17,7 +17,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/session-start.cjs",
           "timeout": 15
         }
       ]
@@ -29,17 +29,17 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/test-result.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/test-result.cjs",
           "timeout": 15
         },
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/git-commit.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/git-commit.cjs",
           "timeout": 15
         },
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/git-push.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/git-push.cjs",
           "timeout": 15
         }
       ]
@@ -51,7 +51,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/dangerous-command.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/dangerous-command.cjs",
           "timeout": 15
         }
       ]
@@ -63,7 +63,7 @@
       "hooks": [
         {
           "type": "command",
-          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/stop-idle.js",
+          "command": "node ${CLAUDE_PLUGIN_ROOT}/hooks/stop-idle.cjs",
           "timeout": 15
         }
       ]

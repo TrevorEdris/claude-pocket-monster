@@ -7,7 +7,7 @@
  * @hook {"event":"PreToolUse","matcher":"Bash","description":"Pokemon reacts to dangerous commands"}
  */
 
-const { renderPokemon, readEvent, respond } = require('./pokemon-common.js');
+const { renderPokemon, readEvent, respond } = require('./pokemon-common.cjs');
 
 const DANGER_PATTERNS = /\b(rm\s+-rf|reset\s+--hard|push\s+--force|drop\s+table|truncate|checkout\s+\.)\b/i;
 
