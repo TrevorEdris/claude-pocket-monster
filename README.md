@@ -9,7 +9,7 @@ A Pokemon companion for Claude Code. Get a random Pokemon that appears throughou
 /plugin marketplace add TrevorEdris/claude-pocket-monster
 
 # Install the plugin
-/plugin install claude-pocket-monster
+/plugin install claude-pocket-monster@claude-pocket-monster
 ```
 
 ## Commands
