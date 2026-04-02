@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-pocket-monster",
+  "description": "Pokemon companion for Claude Code — braille sprites, contextual hooks, shiny rendering",
+  "owner": {
+    "name": "TrevorEdris"
+  },
+  "plugins": [
+    {
+      "name": "cpm",
+      "source": "./plugin",
+      "description": "Pokemon companion with braille sprite art and session hooks",
+      "version": "0.1.0"
+    }
+  ]
+}
