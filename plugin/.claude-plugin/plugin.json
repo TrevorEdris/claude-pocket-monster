@@ -1,5 +1,5 @@
 {
-  "name": "claude-pocket-monster",
+  "name": "cpm",
   "description": "Deterministic Pokemon companion — roll a Pokemon from your user ID with ASCII sprites and shiny rendering",
   "version": "0.1.0",
   "author": {
