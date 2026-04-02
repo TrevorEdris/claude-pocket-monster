@@ -1,94 +1,83 @@
 # claude-pocket-monster
 
-Deterministic Pokemon companion system. Given a user ID, rolls a Pokemon with consistent results using Mulberry32 PRNG. Includes ASCII sprites with shiny rainbow rendering.
+A Pokemon companion for Claude Code. Get a random Pokemon that appears throughout your coding session with contextual quips.
 
-## PoC (v0.1)
-
-10 Pokemon: Kanto starter lines (Bulbasaur through Blastoise) + Salamence.
-
-## Usage
+## Install
 
 ```bash
+# Clone and install dependencies
+git clone https://github.com/TrevorEdris/claude-pocket-monster.git
+cd claude-pocket-monster
 npm install
-npx tsx src/cli.ts <userId>
+
+# Generate sprites (requires chafa and imagemagick)
+brew install chafa imagemagick
+npm run generate-sprites
+
+# Launch Claude Code with the plugin
+claude --plugin-dir ~/path/to/claude-pocket-monster/plugin
 ```
 
-### Example
+## Commands
+
+| Command | What it does |
+|---------|-------------|
+| `/pokemon` | Show your current Pokemon |
+| `/pokemon reroll` | Swap to a new random Pokemon |
+
+## What it looks like
+
+Your Pokemon appears on session start and pops up throughout the session — after tests, commits, pushes, and idle moments — with Haiku-generated quips based on what's happening in the session.
 
 ```
-$ npx tsx src/cli.ts my-user-id
-User: my-user-id
-Pokemon: Squirtle (#7)
-Types: water
-Rarity: common
-Shiny: no
-Eye: ·
+  ★ COMMON    WATER
 
-              
-    ( -- )    
-   (·  ·)     
-    ( ~~ )    
-   d' @@ 'b   
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠤⠒⠉⠉⠁⠉⠉⠐⠢⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠅⠀⠀⠀⠀⠀⢐⡠⣀⠀⠀⠱⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡁⠀⠀⠀⠀⠀⠀⠀⠠⠀⡄⠀⠀⠘⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⢀⣖⠀⠀⠀⠀⠀⠀⢀⠀⠔⠐⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠠⢄⠀⢂⡀⣀⣀⣀⡀⠉⠉⠉⢀⠀⠀⠀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠈⢎⠉⠁⠀⠀⠀⠀⠀⠉⠉⠉⠁⠀⠀⡐⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣑⡦⢀⠀⠀⠀⠀⠀⠀⠀⢀⡠⡈⠐⠢⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⢀⡠⠔⠊⠉⢀⠞⠀⠉⠁⠒⠒⠒⢒⠞⠉⠀⠈⠙⡦⢜⢄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⡒⠒⡁⠀⠀⠀⢠⠋⠢⠄⣀⡀⠀⠀⢠⠃⠀⠀⠀⠀⠀⢀⠀⠙⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⢠⠃⠘⠂⠀⠀⠀⡄⠀⠀⠀⠀⠠⠈⠉⠅⣠⠄⠀⠀⠀⢀⠎⠀⠀⢡⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠈⠉⠉⠁⠒⠀⠩⠠⠀⠀⠀⠀⠀⠀⣔⠔⠁⠈⠐⢲⣠⠊⢠⠀⠀⢀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠈⢀⠐⠠⠤⠄⢃⣀⣀⣉⣐⡖⠒⠉⠈⠀⠀⠀⠀⡤⠀⠀⣀⠤⠤⠤⠤⣀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⡐⢊⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⣄⠠⠤⢀⡐⡠⠊⠄⢠⠊⠁⠀⠀⠀⠀⠀⠁⡀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⡜⠀⠈⢢⠀⠀⠀⡂⠀⠀⠀⠀⡔⠁⠀⠀⠀⠈⠅⣜⠔⠀⠀⠀⡠⠒⠒⠄⠀⠀⡃⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⢖⠈⠉⠒⠤⢄⡈⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠄⠀⠀
+  ⠀⠀⠀⠀⠀⠀⣠⠀⠀⠀⠀⠀⢠⠉⠑⠒⠂⠠⠮⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⢄⣀⣀⡠⠊⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠈⠢⠤⢄⣀⠤⠔⠂⠀⠀⠀⠀⠀⠀⠘⡀⠀⠀⠀⠀⠀⠉⠉⠐⠒⠒⠒⠒⠊⠁⠀⠀⠀⠀⠀
+  ⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠂⠤⢀⠀⡠⢄⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+
+  Squirtle
+
+  HP       ██░░░░░░░░   44
+  ATK      ██░░░░░░░░   48
+  DEF      ███░░░░░░░   65
+  SP.ATK   ██░░░░░░░░   50
+  SP.DEF   ███░░░░░░░   64
+  SPEED    ██░░░░░░░░   43
 ```
 
-Shiny Pokemon (~1/512 chance) get sparkle treatment:
+Shiny Pokemon (~1/512 chance) render with per-character rainbow ANSI colors.
 
-```
- ✨ S H I N Y ✨
- ·    _{@@@@}_    ·
- .   / ★   ★ \    "
- ·  |  \  -- |    ·
- "   \  '---'/    .
- ·   `''   ''`    ·
-```
+## When your Pokemon appears
 
-## API
+| Event | Chance |
+|-------|--------|
+| Session start | 100% |
+| Each prompt you type | 40% |
+| After tests pass/fail | 50% |
+| After `git commit` | 60% |
+| After `git push` | 100% |
+| Before dangerous commands | 100% |
+| When assistant finishes | 40% |
 
-```typescript
-import { roll, loadSprite, renderSprite, wrapShiny } from 'claude-pocket-monster'
+## Available Pokemon (PoC)
 
-const result = roll('user-id')
-// { pokemon: PokemonEntry, shiny: boolean, eye: Eye }
-
-const sprite = loadSprite(result.pokemon.id, result.pokemon.name)
-const lines = result.shiny
-  ? wrapShiny(sprite, 0)
-  : renderSprite(sprite, 0, result.eye)
-```
-
-## Sprite Format
-
-Each sprite file (`data/sprites/NNN-name.json`) contains:
-
-- `id`: Pokedex number
-- `name`: Pokemon name
-- `frames`: 3 arrays of 5 strings each
-  - Each line: 14 characters rendered width
-  - `{E}` placeholder for eye character (replaced at render time)
-  - Frame 0: idle, Frame 1: fidget, Frame 2: special (type flourish)
-
-## Validate Sprites
-
-```bash
-npm run validate-sprites
-```
-
-## Tests
-
-```bash
-npm test
-```
-
-## Roll Algorithm
-
-1. `seed = FNV-1a(userId + "pocket-monster-2026")`
-2. `rng = Mulberry32(seed)`
-3. Roll rarity (weighted: common=50, uncommon=25, rare=15, epic=7, legendary=2, mythical=1)
-4. Pick Pokemon from rarity-filtered pool
-5. Roll shiny: `rng() < 1/512`
-6. Pick eye character
-
-Same user ID always produces the same Pokemon.
+Bulbasaur, Ivysaur, Venusaur, Charmander, Charmeleon, Charizard, Squirtle, Wartortle, Blastoise, Salamence
 
 ## License
 

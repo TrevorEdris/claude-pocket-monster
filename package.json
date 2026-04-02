@@ -9,6 +9,7 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
+    "generate-sprites": "tsx scripts/generate-sprites.ts",
     "validate-sprites": "tsx scripts/validate-sprites.ts",
     "demo": "tsx src/cli.ts"
   },

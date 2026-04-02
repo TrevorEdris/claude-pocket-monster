@@ -9,3 +9,4 @@ dist/**/*.js
 .env.*
 coverage/
 .cache/
+.ai/
