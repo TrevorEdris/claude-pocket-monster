@@ -1,0 +1,23 @@
+{
+  "name": "claude-pocket-monster",
+  "version": "0.1.0",
+  "description": "Deterministic Pokemon companion for Claude Code — ASCII sprites, shiny rendering, Mulberry32 PRNG",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "generate-sprites": "tsx scripts/generate-sprites.ts",
+    "validate-sprites": "tsx scripts/validate-sprites.ts",
+    "demo": "tsx src/cli.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.1.0"
+  },
+  "license": "MIT"
+}

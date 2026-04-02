@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "name": "Bulbasaur",
+    "types": ["grass", "poison"],
+    "generation": 1,
+    "rarity": "common",
+    "baseStats": { "hp": 45, "attack": 49, "defense": 49, "spAtk": 65, "spDef": 65, "speed": 45 }
+  },
+  {
+    "id": 2,
+    "name": "Ivysaur",
+    "types": ["grass", "poison"],
+    "generation": 1,
+    "rarity": "uncommon",
+    "baseStats": { "hp": 60, "attack": 62, "defense": 63, "spAtk": 80, "spDef": 80, "speed": 60 }
+  },
+  {
+    "id": 3,
+    "name": "Venusaur",
+    "types": ["grass", "poison"],
+    "generation": 1,
+    "rarity": "rare",
+    "baseStats": { "hp": 80, "attack": 82, "defense": 83, "spAtk": 100, "spDef": 100, "speed": 80 }
+  },
+  {
+    "id": 4,
+    "name": "Charmander",
+    "types": ["fire"],
+    "generation": 1,
+    "rarity": "common",
+    "baseStats": { "hp": 39, "attack": 52, "defense": 43, "spAtk": 60, "spDef": 50, "speed": 65 }
+  },
+  {
+    "id": 5,
+    "name": "Charmeleon",
+    "types": ["fire"],
+    "generation": 1,
+    "rarity": "uncommon",
+    "baseStats": { "hp": 58, "attack": 64, "defense": 58, "spAtk": 80, "spDef": 65, "speed": 80 }
+  },
+  {
+    "id": 6,
+    "name": "Charizard",
+    "types": ["fire", "flying"],
+    "generation": 1,
+    "rarity": "rare",
+    "baseStats": { "hp": 78, "attack": 84, "defense": 78, "spAtk": 109, "spDef": 85, "speed": 100 }
+  },
+  {
+    "id": 7,
+    "name": "Squirtle",
+    "types": ["water"],
+    "generation": 1,
+    "rarity": "common",
+    "baseStats": { "hp": 44, "attack": 48, "defense": 65, "spAtk": 50, "spDef": 64, "speed": 43 }
+  },
+  {
+    "id": 8,
+    "name": "Wartortle",
+    "types": ["water"],
+    "generation": 1,
+    "rarity": "uncommon",
+    "baseStats": { "hp": 59, "attack": 63, "defense": 80, "spAtk": 65, "spDef": 80, "speed": 58 }
+  },
+  {
+    "id": 9,
+    "name": "Blastoise",
+    "types": ["water"],
+    "generation": 1,
+    "rarity": "rare",
+    "baseStats": { "hp": 79, "attack": 83, "defense": 100, "spAtk": 85, "spDef": 105, "speed": 78 }
+  },
+  {
+    "id": 373,
+    "name": "Salamence",
+    "types": ["dragon", "flying"],
+    "generation": 3,
+    "rarity": "epic",
+    "baseStats": { "hp": 95, "attack": 135, "defense": 80, "spAtk": 110, "spDef": 80, "speed": 100 }
+  }
+]
