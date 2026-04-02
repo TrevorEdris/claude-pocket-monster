@@ -2,20 +2,23 @@
 
 A Pokemon companion for Claude Code. Get a random Pokemon that appears throughout your coding session with contextual quips.
 
-## Install
+## Installation
 
 ```bash
-# Clone and install dependencies
-git clone https://github.com/TrevorEdris/claude-pocket-monster.git
-cd claude-pocket-monster
-npm install
+# Register the marketplace (one-time)
+/plugin marketplace add TrevorEdris/claude-pocket-monster
 
-# Generate sprites (requires chafa and imagemagick)
+# Install the plugin
+/plugin install claude-pocket-monster
+```
+
+### Prerequisites for sprite generation
+
+If you want to regenerate sprites from PokeAPI artwork:
+
+```bash
 brew install chafa imagemagick
 npm run generate-sprites
-
-# Launch Claude Code with the plugin
-claude --plugin-dir ~/path/to/claude-pocket-monster/plugin
 ```
 
 ## Commands
