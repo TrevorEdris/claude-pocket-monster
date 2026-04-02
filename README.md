@@ -12,15 +12,6 @@ A Pokemon companion for Claude Code. Get a random Pokemon that appears throughou
 /plugin install claude-pocket-monster
 ```
 
-### Prerequisites for sprite generation
-
-If you want to regenerate sprites from PokeAPI artwork:
-
-```bash
-brew install chafa imagemagick
-npm run generate-sprites
-```
-
 ## Commands
 
 | Command | What it does |
