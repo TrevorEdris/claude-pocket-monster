@@ -11,6 +11,12 @@
       "source": "./plugin",
       "description": "Pokemon companion with braille sprite art and session hooks",
       "version": "0.1.0"
+    },
+    {
+      "name": "cpm-hd",
+      "source": "./plugin-hd",
+      "description": "Persistent Pokemon sprite via Kitty graphics — for Ghostty, Kitty, WezTerm",
+      "version": "0.1.0"
     }
   ]
 }
