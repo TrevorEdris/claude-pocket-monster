@@ -1,5 +1,5 @@
 import { createInterface } from 'node:readline'
-import { appendFileSync } from 'node:fs'
+import { appendFileSync, openSync, writeSync } from 'node:fs'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import type { StatusLineInput } from './types.js'
@@ -36,23 +36,32 @@ async function main() {
     log('No TTY found — metrics-only mode')
   }
 
-  // Initial render — try raw Kitty write first as a debug test
+  // Delayed render — wait for Ink to finish its initial draw
   if (tty) {
     const b64 = sprite.pngBuffer.toString('base64')
-    log(`Raw Kitty test: b64 length=${b64.length}`)
-    // Exact same format as test-kitty.sh which worked
-    const raw = `\x1b[s\x1b[3;5H\x1b_Ga=T,f=100,t=d,i=55,q=2;${b64}\x1b\\\x1b[u`
-    tty.write(raw)
-    log(`Wrote ${raw.length} bytes raw Kitty to ${tty.devicePath} (row=3, col=5)`)
+    log(`Sprite ready: b64 length=${b64.length}, will render after 3s delay`)
+
+    // Render every 2 seconds to fight Ink redraws
+    setInterval(() => {
+      const raw = `\x1b[s\x1b[3;60H\x1b_Ga=T,f=100,t=d,i=55,q=2,z=1000,K=1;${b64}\x1b\\\x1b[u`
+      tty.write(raw)
+    }, 2000)
+
+    // Also try writing directly to the specific device path, not /dev/tty
+    try {
+      const specificFd = openSync('/dev/ttys020', 'w')
+      log('Also opened /dev/ttys020 directly')
+      setInterval(() => {
+        const raw = `\x1b[s\x1b[3;5H\x1b_Ga=T,f=100,t=d,i=56,q=2,z=1000,K=1;${b64}\x1b\\\x1b[u`
+        writeSync(specificFd, Buffer.from(raw))
+      }, 2000)
+    } catch (e: any) {
+      log(`Could not open /dev/ttys020: ${e.message}`)
+    }
   }
 
-  // Also try via renderer
   if (renderer) {
-    const pos = getSpritePosition()
-    log(`Renderer at row=${pos.row}, col=${pos.col}`)
-    renderer.render(sprite.pngBuffer, pos)
     rendered = true
-    log('Renderer complete')
   }
 
   // Output initial metrics
