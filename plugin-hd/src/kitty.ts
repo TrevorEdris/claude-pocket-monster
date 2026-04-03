@@ -30,8 +30,9 @@ function transmitAndDisplay(
 
     if (isFirst) {
       // First chunk: transmit + display with all params
+      // t=d = direct (base64 payload), f=100 = PNG format
       tty.write(
-        `\x1b_Ga=T,f=100,i=${imageId},p=1,q=2,z=1000,m=${more};${chunks[i]}\x1b\\`,
+        `\x1b_Ga=T,f=100,t=d,i=${imageId},p=1,q=2,z=1000,m=${more};${chunks[i]}\x1b\\`,
       )
     } else {
       // Continuation chunk
