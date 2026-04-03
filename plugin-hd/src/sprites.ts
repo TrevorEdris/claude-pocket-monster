@@ -9,58 +9,96 @@ const SPRITE_CACHE = join(CONFIG_DIR, 'sprite-cache')
 const CONFIG_FILE = join(CONFIG_DIR, 'config.json')
 const SPRITE_SIZE = 64
 
+// Pokemon data (same as data/pokemon.json)
+const POKEMON = [
+  { id: 1, name: 'Bulbasaur', rarity: 'common' },
+  { id: 2, name: 'Ivysaur', rarity: 'uncommon' },
+  { id: 3, name: 'Venusaur', rarity: 'rare' },
+  { id: 4, name: 'Charmander', rarity: 'common' },
+  { id: 5, name: 'Charmeleon', rarity: 'uncommon' },
+  { id: 6, name: 'Charizard', rarity: 'rare' },
+  { id: 7, name: 'Squirtle', rarity: 'common' },
+  { id: 8, name: 'Wartortle', rarity: 'uncommon' },
+  { id: 9, name: 'Blastoise', rarity: 'rare' },
+  { id: 373, name: 'Salamence', rarity: 'epic' },
+]
+
+const RARITY_WEIGHTS: Record<string, number> = {
+  common: 50, uncommon: 25, rare: 15, epic: 7, legendary: 2, mythical: 1,
+}
+
+// Mulberry32 PRNG — same implementation as src/roll.ts
+function mulberry32(seed: number): () => number {
+  let a = seed >>> 0
+  return function () {
+    a |= 0
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function hashString(s: string): number {
+  let h = 2166136261
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
+
+/**
+ * Read the persisted seed and deterministically roll the same Pokemon
+ * that the cpm plugin uses. This avoids shelling out to the CLI
+ * (which would generate a new seed in a fresh process).
+ */
+function rollFromConfig(): { id: number; name: string; shiny: boolean } {
+  let seedStr: string
+  try {
+    const config = JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
+    seedStr = config.seed
+  } catch {
+    seedStr = `init-${Date.now()}-${Math.random()}`
+    mkdirSync(CONFIG_DIR, { recursive: true })
+    writeFileSync(CONFIG_FILE, JSON.stringify({ seed: seedStr }, null, 2) + '\n')
+  }
+
+  if (!seedStr) {
+    seedStr = `init-${Date.now()}-${Math.random()}`
+    mkdirSync(CONFIG_DIR, { recursive: true })
+    writeFileSync(CONFIG_FILE, JSON.stringify({ seed: seedStr }, null, 2) + '\n')
+  }
+
+  const seed = hashString(seedStr)
+  const rng = mulberry32(seed)
+
+  // Roll rarity
+  const entries = Object.entries(RARITY_WEIGHTS)
+  const totalWeight = entries.reduce((sum, [, w]) => sum + w, 0)
+  let roll = rng() * totalWeight
+  let rarity = 'common'
+  for (const [r, weight] of entries) {
+    roll -= weight
+    if (roll <= 0) { rarity = r; break }
+  }
+
+  // Pick from pool
+  const pool = POKEMON.filter((p) => p.rarity === rarity)
+  const finalPool = pool.length > 0 ? pool : POKEMON.filter((p) => p.rarity === 'common')
+  const pokemon = finalPool[Math.floor(rng() * finalPool.length)]!
+
+  const shiny = rng() < 1 / 512
+
+  return { id: pokemon.id, name: pokemon.name, shiny }
+}
+
 function ensureDirs(): void {
   mkdirSync(SPRITE_CACHE, { recursive: true })
 }
 
 /**
- * Read the user's current Pokemon from the shared cpm config.
- */
-function loadPokemonConfig(): { seed?: string } {
-  try {
-    return JSON.parse(readFileSync(CONFIG_FILE, 'utf8'))
-  } catch {
-    return {}
-  }
-}
-
-/**
- * Get the Pokemon ID and name by running the cpm CLI.
- * Falls back to Charmander (#4) if anything fails.
- */
-function getPokemonFromCLI(): { id: number; name: string; shiny: boolean } {
-  try {
-    const repoRoot = join(__dirname, '..', '..')
-    const output = execSync(`npx tsx "${join(repoRoot, 'src', 'cli.ts')}"`, {
-      encoding: 'utf8',
-      cwd: repoRoot,
-      timeout: 10000,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    })
-
-    const nameMatch = output.match(/^\s{2}(\w+)\s*$/m)
-    const shiny = output.includes('SHINY')
-
-    // Map name to Pokedex ID
-    const nameToId: Record<string, number> = {
-      Bulbasaur: 1, Ivysaur: 2, Venusaur: 3,
-      Charmander: 4, Charmeleon: 5, Charizard: 6,
-      Squirtle: 7, Wartortle: 8, Blastoise: 9,
-      Salamence: 373,
-    }
-
-    const name = nameMatch?.[1] || 'Charmander'
-    const id = nameToId[name] || 4
-
-    return { id, name, shiny }
-  } catch {
-    return { id: 4, name: 'Charmander', shiny: false }
-  }
-}
-
-/**
  * Download a Pokemon sprite from PokeAPI if not cached.
- * Uses the 96x96 game-style pixel art, resized to 64x64.
  */
 function downloadSprite(id: number, shiny: boolean): Buffer {
   ensureDirs()
@@ -71,7 +109,6 @@ function downloadSprite(id: number, shiny: boolean): Buffer {
     return readFileSync(cached)
   }
 
-  const variant = shiny ? 'shiny' : 'pokemon'
   const url = shiny
     ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/shiny/${id}.png`
     : `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`
@@ -79,7 +116,6 @@ function downloadSprite(id: number, shiny: boolean): Buffer {
   const raw = join(SPRITE_CACHE, `${id}${suffix}-raw.png`)
   execSync(`curl -sL -o "${raw}" "${url}"`, { timeout: 10000 })
 
-  // Resize to 64x64 with transparent background preserved
   execSync(
     `magick "${raw}" -resize ${SPRITE_SIZE}x${SPRITE_SIZE} -background none -gravity center -extent ${SPRITE_SIZE}x${SPRITE_SIZE} "${cached}"`,
     { timeout: 5000 },
@@ -89,10 +125,10 @@ function downloadSprite(id: number, shiny: boolean): Buffer {
 }
 
 /**
- * Load the user's Pokemon sprite, downloading if needed.
+ * Load the user's Pokemon sprite using the same seed as the cpm plugin.
  */
 export function loadSprite(): SpriteInfo {
-  const { id, name, shiny } = getPokemonFromCLI()
+  const { id, name, shiny } = rollFromConfig()
   const pngBuffer = downloadSprite(id, shiny)
   return { pokemonId: id, pokemonName: name, pngBuffer, shiny }
 }
