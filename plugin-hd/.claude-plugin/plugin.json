@@ -1,0 +1,10 @@
+{
+  "name": "cpm-hd",
+  "description": "Pokemon companion with persistent Kitty graphics sprite via statusLine — for Ghostty, Kitty, WezTerm",
+  "version": "0.1.0",
+  "author": {
+    "name": "TrevorEdris",
+    "url": "https://github.com/TrevorEdris/claude-pocket-monster"
+  },
+  "repository": "https://github.com/TrevorEdris/claude-pocket-monster"
+}
