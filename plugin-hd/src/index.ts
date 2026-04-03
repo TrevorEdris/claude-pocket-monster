@@ -17,6 +17,7 @@ function log(msg: string) {
 let inputState: StatusLineInput = {}
 let renderer: KittyRenderer | null = null
 let metricsTimer: ReturnType<typeof setInterval> | null = null
+let renderTimer: ReturnType<typeof setInterval> | null = null
 let rendered = false
 
 async function main() {
@@ -76,7 +77,15 @@ async function main() {
     outputMetrics(sprite)
   })
 
-  // Periodic metrics refresh
+  // Periodic refresh — re-render sprite every 500ms to fight Ink redraws,
+  // and refresh metrics every 1000ms
+  if (renderer) {
+    renderTimer = setInterval(() => {
+      updateTermSize()
+      const pos = getSpritePosition()
+      renderer!.render(sprite.pngBuffer, pos)
+    }, 500)
+  }
   metricsTimer = setInterval(() => outputMetrics(sprite), 1000)
 
   // Shutdown on stdin close
@@ -96,6 +105,7 @@ function outputMetrics(sprite: ReturnType<typeof loadSprite>) {
 
 function shutdown() {
   if (metricsTimer) clearInterval(metricsTimer)
+  if (renderTimer) clearInterval(renderTimer)
   if (renderer) {
     renderer.cleanup()
     renderer = null
