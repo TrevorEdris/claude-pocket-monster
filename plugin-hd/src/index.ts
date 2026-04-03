@@ -1,4 +1,7 @@
 import { createInterface } from 'node:readline'
+import { appendFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
 import type { StatusLineInput } from './types.js'
 import { discoverTTY } from './tty.js'
 import { KittyRenderer } from './kitty.js'
@@ -6,26 +9,39 @@ import { loadSprite } from './sprites.js'
 import { getSpritePosition, updateTermSize, getTermSize } from './position.js'
 import { renderMetrics } from './metrics.js'
 
+const LOG = join(tmpdir(), 'cpm-hd-debug.log')
+function log(msg: string) {
+  appendFileSync(LOG, `[${new Date().toISOString()}] ${msg}\n`)
+}
+
 let inputState: StatusLineInput = {}
 let renderer: KittyRenderer | null = null
 let metricsTimer: ReturnType<typeof setInterval> | null = null
 let rendered = false
 
 async function main() {
+  log('Starting cpm-hd...')
+
   // Load the user's Pokemon sprite
   const sprite = loadSprite()
+  log(`Loaded sprite: ${sprite.pokemonName} (#${sprite.pokemonId}), ${sprite.pngBuffer.length} bytes, shiny=${sprite.shiny}`)
 
   // Discover real terminal for Kitty graphics
   const tty = discoverTTY()
   if (tty) {
+    log(`TTY discovered: ${tty.devicePath}`)
     renderer = new KittyRenderer(tty)
+  } else {
+    log('No TTY found — metrics-only mode')
   }
 
   // Initial render
   if (renderer) {
     const pos = getSpritePosition()
+    log(`Rendering at row=${pos.row}, col=${pos.col}`)
     renderer.render(sprite.pngBuffer, pos)
     rendered = true
+    log('Initial render complete')
   }
 
   // Output initial metrics
