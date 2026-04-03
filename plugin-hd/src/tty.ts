@@ -41,7 +41,31 @@ export function discoverTTY(): TTYChannel | null {
     }
     log(`Ancestry chain:\n  ${chain.join('\n  ')}`)
 
-    // Walk ancestors starting from parent
+    // Strategy 1: Try /dev/tty first — this is the controlling terminal
+    // of the process group. If it works, Kitty graphics go to the user's
+    // actual terminal window.
+    try {
+      const fd = openSync('/dev/tty', 'w')
+      log('Opened /dev/tty directly as fd=' + fd)
+      const testData = '\x1b_Gi=98,q=2;AAAA\x1b\\'
+      writeSync(fd, Buffer.from(testData))
+      log('/dev/tty test write succeeded')
+      return {
+        devicePath: '/dev/tty',
+        fd,
+        write(data: string | Buffer) {
+          const buf = typeof data === 'string' ? Buffer.from(data) : data
+          writeSync(fd, buf)
+        },
+        close() {
+          try { closeSync(fd) } catch {}
+        },
+      }
+    } catch (e: any) {
+      log(`/dev/tty failed: ${e.message} — falling back to process tree walk`)
+    }
+
+    // Strategy 2: Walk ancestors
     let current = process.ppid
     for (let i = 0; i < 15 && current > 1; i++) {
       const info = procs.get(current)
