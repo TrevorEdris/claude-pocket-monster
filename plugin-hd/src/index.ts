@@ -36,13 +36,23 @@ async function main() {
     log('No TTY found — metrics-only mode')
   }
 
-  // Initial render
+  // Initial render — try raw Kitty write first as a debug test
+  if (tty) {
+    const b64 = sprite.pngBuffer.toString('base64')
+    log(`Raw Kitty test: b64 length=${b64.length}`)
+    // Exact same format as test-kitty.sh which worked
+    const raw = `\x1b[s\x1b[3;5H\x1b_Ga=T,f=100,t=d,i=55,q=2;${b64}\x1b\\\x1b[u`
+    tty.write(raw)
+    log(`Wrote ${raw.length} bytes raw Kitty to ${tty.devicePath} (row=3, col=5)`)
+  }
+
+  // Also try via renderer
   if (renderer) {
     const pos = getSpritePosition()
-    log(`Rendering at row=${pos.row}, col=${pos.col}`)
+    log(`Renderer at row=${pos.row}, col=${pos.col}`)
     renderer.render(sprite.pngBuffer, pos)
     rendered = true
-    log('Initial render complete')
+    log('Renderer complete')
   }
 
   // Output initial metrics
